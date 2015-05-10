@@ -108,15 +108,21 @@ class CollabFilterModel(val numPartForRow: Int,
     //sc.textfile("")
     val rand = new XORShiftRandom(seed)
     //Initialize U
-    val U = U match {
+/*    val U = U match {
       case null => Array.fill(numUsers)(Array.fill(kValues)(rand.nextInt(1)))
       case _ => U
-    }
+    }*/
+	if(U==null){
+		U=Array.fill(numUsers)(Array.fill(kValues)(rand.nextDouble()))
+	}
     //Initialize V
-    val V = V match {
+/*    val V = V match {
       case null => Array.fill(numProducts)(Array.fill(kValues)(rand.nextInt(1)))
       case _ => V
-    }
+    }*/
+	if(V==null){
+		V=Array.fill(numProducts)(Array.fill(kValues)(rand.nextDouble()))
+	}	
 
     blockMatrixFlagUpdate = blockMatFlag
 
@@ -160,9 +166,9 @@ class CollabFilterModel(val numPartForRow: Int,
       blockMat.blocks.filter(entry => Filter(entry)).map { case ((blockRowIndex, blockColIndex), matrix) =>
         for(i <-0 until rowsPerBlock-1) {
           for (j <- 0 until colsPerBlock - 1) {
-            //val u=U_br.value
-            //val v=V_br.value
-            SGD(matrix.apply(i,j),i,j,blockRowIndex,blockColIndex,0.1,0.1,U_br.value,V_br.value)
+            val u=U_br.value
+            val v=V_br.value
+            (U,V)=SGD(matrix.apply(i,j),i,j,blockRowIndex,blockColIndex,0.1,0.1,u,v)
           }
         }
         U_br=sc.broadcast(U)
